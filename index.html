@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">		
+		
+		<title>HTML5 Image Viewer</title>
+		<meta name="description" content="Visualizador de imagens baseado em HTML5 com capacidades de edição limitadas" />
+		<!--<link rel="stylesheet" href="/css/cosmo.bootstrap.min.css">-->
+	</head>
+	<body>
+		<div>
+			<div>Selecione o arquivo de imagem a ser editado:</div>
+			<div><input type="file" id="imageFile" accept="image/*" /></div>
+		</div>
+		<div id="toolbar">
+			<div>
+				<label for="zoom">Zoom:</label>
+				-100% <input type="range" id="zoomRange" min="-100" max="100" step="1" value="0" /> 100%
+			</div>
+			<div>
+				<label for="zoom">Rotação:</label>
+				-180° <input type="range" id="rotationRange" min="-180" max="180" step="1" value="0" /> 180°
+			</div>
+		</div>
+		<div id="viewport" style="width:100%;min-height:500px;"></div>
+
+		<!--<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>-->
+		<!--<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
+		<script lang="javascript" type="text/javascript" src="scripts/canvas.js"></script>
+		<script lang="javascript" type="text/javascript">
+			
+			window.addEventListener("load", function(){
+				var imageFile = document.getElementById('imageFile');
+				var zoomRange = document.getElementById('zoomRange');
+				var rotationRange = document.getElementById('rotationRange');
+
+				var canvasHelper = new MS.POC.Canvas.CanvasHelper("viewport");
+				
+				imageFile.addEventListener("input", function(){
+					canvasHelper.LoadImage(this.files[0], function() {
+                        rotationRange.value='0';
+                        zoomRange.value = '0';      					   
+					});
+				});
+				
+				zoomRange.addEventListener("input", function() {
+					canvasHelper.SetZoom(this.value);
+				});
+				
+				rotationRange.addEventListener("input", function() {
+                    var _value = this.value < 0 ? 360 + +this.value:this.value;
+					canvasHelper.SetRotation(_value);
+				});
+			});
+			
+		</script>
+	</body>
+	
+</html>
