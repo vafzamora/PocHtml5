@@ -38,7 +38,7 @@
 
 				var canvasHelper = new MS.POC.Canvas.CanvasHelper("viewport");
 				
-				imageFile.addEventListener("input", function(){
+				imageFile.addEventListener("change", function(){
 					canvasHelper.LoadImage(this.files[0], function() {
                         rotationRange.value='0';
                         zoomRange.value = '0';      					   

@@ -3,11 +3,9 @@ var MS = MS || {
         Canvas: {
             CanvasHelper: function (parentElementId, file) {
                 var _canvas = document.createElement("canvas");
-
-                var _context = _canvas.getContext('2d');
-                _context.msImageSmoothingEnabled = true;
-                _context.mozImageSmoothingEnabled = true;
-                _context.imageSmoothingEnabled = true;
+                _canvas.style.margin="0px auto";
+                _canvas.style.display="block";
+                   
 
                 var _currentImage = new Image();
                 var _parent = document.getElementById(parentElementId);
@@ -67,33 +65,52 @@ var MS = MS || {
                 };
 
                 // ****** Funções Privadas ******
-                var renderImage = function (w, h) {
+                var renderImage = function () {
                     var _imageWidth = _currentImage.width * _zoom;
                     var _imageHeight = _currentImage.height * _zoom;
 
+                    drawSelection(
+                        drawImage(_canvas,_imageWidth,_imageHeight)
+                    );
+
+                }
+                
+                var drawImage = function (drawCanvas, imageWidth, imageHeight ){
+                    
+                    var _context = drawCanvas.getContext('2d');
+                   // _context.msImageSmoothingEnabled = true;
+                    _context.mozImageSmoothingEnabled = true;
+                    _context.imageSmoothingEnabled = true;
+                    
                     //TODO: considerar a rotação para redimensionar e reposicionar o canvas para evitar que as bordas sejam cortadas
                     var _angulo = ((_rotation > Math.PI * 0.5 && _rotation < Math.PI * 1) || (_rotation > Math.PI * 1.5 && _rotation < Math.PI * 2)) ? Math.PI - _rotation : _rotation;
-                    w = Math.max(Math.abs(Math.sin(_angulo) * _imageHeight + Math.cos(_angulo) * _imageWidth),_parent.clientWidth);
-                    h = Math.abs(Math.sin(_angulo) * _imageWidth +  Math.cos(_angulo) * _imageHeight);
-
-                    _canvas.width = w;
-                    _canvas.height = h;
+                    w = Math.abs(Math.sin(_angulo) * imageHeight + Math.cos(_angulo) * imageWidth);
+                    h = Math.abs(Math.sin(_angulo) * imageWidth +  Math.cos(_angulo) * imageHeight);
+                    
+                    drawCanvas.width = w;
+                    drawCanvas.height = h;
+                    
                     _context.save();
                     _context.clearRect(0, 0, w, h);
                     _context.translate(w / 2, h / 2);
                     _context.rotate(_rotation);
 
-                    _context.drawImage(_currentImage, _imageWidth/-2, _imageHeight/-2, _imageWidth, _imageHeight);
+                    _context.drawImage(_currentImage, imageWidth/-2, imageHeight/-2, imageWidth, imageHeight);
                     _context.restore();
-
-                    if (_hasSelection) {
-                        _context.fillStyle = 'rgba(0,0,0,.25)';
-                        _context.fillRect(0, 0, Math.min(_x1, _x2), h);
-                        _context.fillRect(Math.min(_x1, _x2), 0, w - Math.min(_x2, _x1), Math.min(_y1, _y2));
-                        _context.fillRect(Math.min(_x1, _x2), Math.max(_y1, _y2), w - Math.min(_x2, _x1), h - Math.max(_y1, _y2));
-                        _context.fillRect(Math.max(_x1, _x2), Math.min(_y1, _y2), w - Math.max(_x2, _x1), Math.abs(_y2 - _y1));
-                    }
+                    return _context; 
+                    
                 }
+                var drawSelection = function (context) {
+                    if (_hasSelection) {
+                        context.fillStyle = 'rgba(0,0,0,.25)';
+                        context.fillRect(0, 0, Math.min(_x1, _x2), h);
+                        context.fillRect(Math.min(_x1, _x2), 0, w - Math.min(_x2, _x1), Math.min(_y1, _y2));
+                        context.fillRect(Math.min(_x1, _x2), Math.max(_y1, _y2), w - Math.min(_x2, _x1), h - Math.max(_y1, _y2));
+                        context.fillRect(Math.max(_x1, _x2), Math.min(_y1, _y2), w - Math.max(_x2, _x1), Math.abs(_y2 - _y1));
+                    }
+
+                }
+                
 
                 // ****** Métodos ******
                 this.LoadImage = function (file, callback) {
