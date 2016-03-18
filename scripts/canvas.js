@@ -51,7 +51,7 @@ var MS = MS || {
                 };
                 this.SetZoom = function (value) {
                     _zoom = 1 + (value / 100);
-                    _hasSelection = false;
+                    clearSelection();                    
                     renderImage();
                 };
 
@@ -62,6 +62,7 @@ var MS = MS || {
                 };
                 this.SetRotation = function (value) {
                     _rotation = value * Math.PI/180;
+                    clearSelection();
                     renderImage();
                 };
 
@@ -98,9 +99,9 @@ var MS = MS || {
 
                     _context.drawImage(_currentImage, imageWidth/-2, imageHeight/-2, imageWidth, imageHeight);
                     _context.restore();
-                    return _context; 
-                    
+                    return _context;                    
                 }
+                
                 var drawSelection = function (context) {
                     if (_hasSelection) {
                         context.fillStyle = 'rgba(0,0,0,.25)';
@@ -119,6 +120,10 @@ var MS = MS || {
                     }
 
                 }               
+                
+                var  clearSelection = function(){
+                    _hasSelection = false;
+                }
 
                 // ****** Métodos ******
                 this.LoadImage = function (file, callback) {
@@ -137,12 +142,16 @@ var MS = MS || {
                 
                 this.CropImage = function(){
                     if(_hasSelection){
-                        var cropCanvas = Document.createElement("canvas");
+                        var sourceCanvas = document.createElement("canvas");
+                        drawImage(sourceCanvas,_currentImage.width,_currentImage.height);
+                        
+                        var cropCanvas = document.createElement("canvas");
                         cropCanvas.width=_selection.width/_zoom;
                         cropCanvas.height=_selection.height/_zoom;
                         
                         cropCanvas.getContext('2d')
-                            .drawImage(_selection.left/_zoom,
+                            .drawImage(sourceCanvas,
+                                        _selection.left/_zoom,
                                         _selection.top/_zoom,
                                         cropCanvas.width,
                                         cropCanvas.height,

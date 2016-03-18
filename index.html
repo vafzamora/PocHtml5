@@ -23,6 +23,7 @@
 				<label for="zoom">Rotação:</label>
 				-180° <input type="range" id="rotationRange" min="-180" max="180" step="1" value="0" /> 180°
 			</div>
+            <input type="button" value="Crop" id="cropButton" />
 		</div>
 		<div id="viewport" style="width:100%;min-height:500px;"></div>
 
@@ -35,6 +36,7 @@
 				var imageFile = document.getElementById('imageFile');
 				var zoomRange = document.getElementById('zoomRange');
 				var rotationRange = document.getElementById('rotationRange');
+                var cropButton = document.getElementById('cropButton');
 
 				var canvasHelper = new MS.POC.Canvas.CanvasHelper("viewport");
 				
@@ -53,6 +55,11 @@
                     var _value = this.value < 0 ? 360 + +this.value:this.value;
 					canvasHelper.SetRotation(_value);
 				});
+                
+                cropButton.addEventListener("click",function(){
+                    canvasHelper.CropImage();
+                });
+                
 			});
 			
 		</script>
