@@ -13,6 +13,7 @@ var MS = MS || {
 
                 var _isMouseDown = false;
                 var _hasSelection = false;
+                var _selection; 
                 var _x1 = 0;
                 var _y1 = 0;
                 var _x2 = -1;
@@ -78,7 +79,7 @@ var MS = MS || {
                 var drawImage = function (drawCanvas, imageWidth, imageHeight ){
                     
                     var _context = drawCanvas.getContext('2d');
-                   // _context.msImageSmoothingEnabled = true;
+                    _context.msImageSmoothingEnabled = true;
                     _context.mozImageSmoothingEnabled = true;
                     _context.imageSmoothingEnabled = true;
                     
@@ -103,14 +104,21 @@ var MS = MS || {
                 var drawSelection = function (context) {
                     if (_hasSelection) {
                         context.fillStyle = 'rgba(0,0,0,.25)';
-                        context.fillRect(0, 0, Math.min(_x1, _x2), h);
-                        context.fillRect(Math.min(_x1, _x2), 0, w - Math.min(_x2, _x1), Math.min(_y1, _y2));
-                        context.fillRect(Math.min(_x1, _x2), Math.max(_y1, _y2), w - Math.min(_x2, _x1), h - Math.max(_y1, _y2));
-                        context.fillRect(Math.max(_x1, _x2), Math.min(_y1, _y2), w - Math.max(_x2, _x1), Math.abs(_y2 - _y1));
+                        _selection = {
+                                left:Math.min(_x1,_x2),
+                                top:Math.min(_y1,_y2),
+                                bottom:Math.max(_y1, _y2),
+                                right:Math.max(_x1, _x2),
+                                width:Math.abs(_x1-_x2),
+                                height:Math.abs(_y1-_y2)
+                            }
+                        context.fillRect(0, 0, _selection.left, h);
+                        context.fillRect(_selection.left, 0, w - _selection.left, _selection.top);
+                        context.fillRect(_selection.left, _selection.bottom, w - _selection.left, h - _selection.bottom);
+                        context.fillRect(_selection.right, _selection.top, w - _selection.right, _selection.height);
                     }
 
-                }
-                
+                }               
 
                 // ****** Métodos ******
                 this.LoadImage = function (file, callback) {
@@ -125,6 +133,25 @@ var MS = MS || {
                         _currentImage.src = reader.result;
                     };
                     reader.readAsDataURL(file);
+                }
+                
+                this.CropImage = function(){
+                    if(_hasSelection){
+                        var cropCanvas = Document.createElement("canvas");
+                        cropCanvas.width=_selection.width/_zoom;
+                        cropCanvas.height=_selection.height/_zoom;
+                        
+                        cropCanvas.getContext('2d')
+                            .drawImage(_selection.left/_zoom,
+                                        _selection.top/_zoom,
+                                        cropCanvas.width,
+                                        cropCanvas.height,
+                                        0,
+                                        0,
+                                        cropCanvas.width,
+                                        cropCanvas.height);       
+                       window.open(cropCanvas.toDataURL("image/png"));                 
+                    }               
                 }
                 
                 this.RenderImage = function(){
